@@ -1,6 +1,10 @@
 package com.example.timer
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -8,9 +12,37 @@ import android.view.Menu
 import com.example.timer.util.PrefUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.timer_layout.*
+import java.util.*
 
 class MainActivity : AppCompatActivity()
 {
+
+    companion object
+    {
+        fun setAlarm(context: Context, nowSeconds:Long, remainingSeconds:Long) : Long
+        {
+            val wakeUpTime = (nowSeconds + remainingSeconds) * 1000
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context,TimerExpiredReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(context,0,intent,0)
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,wakeUpTime,pendingIntent)
+            PrefUtil.setAlarmSetTime(nowSeconds,context)
+            return wakeUpTime
+        }
+
+        fun removeAlarm(context: Context)
+        {
+            val intent = Intent(context,TimerExpiredReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(context,0,intent,0)
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(pendingIntent)
+            PrefUtil.setAlarmSetTime(0,context)
+        }
+
+        val nowSecondsSystem : Long
+            get() = Calendar.getInstance().timeInMillis / 1000
+    }
+
     private lateinit var timer:CountDownTimer
     private var timerLeng  = 0L
     private var timeState = TimerState.Stopped
@@ -120,7 +152,7 @@ class MainActivity : AppCompatActivity()
 
         initTimer()
 
-        //TODO: remove background timer
+        removeAlarm(this)
     }
 
     private fun initTimer() {
@@ -135,6 +167,13 @@ class MainActivity : AppCompatActivity()
                 if(timeState == TimerState.Running || timeState == TimerState.Paused)
             PrefUtil.getSecondsRemaining(this)
         else timerLeng
+
+        val alarmSetTime = PrefUtil.getAlarmSetTIme(this)
+
+        if(alarmSetTime > 0)
+            secondsRemaining -= nowSecondsSystem - alarmSetTime
+        else if(secondsRemaining <= 0)
+            onTimerFinish()
 
         if(timeState == TimerState.Running)
             startTimer()
@@ -151,7 +190,7 @@ class MainActivity : AppCompatActivity()
         if(timeState == TimerState.Running)
         {
             timer.cancel()
-            //TODO: start timer in background
+            val wakeUpTime = setAlarm(this, nowSecondsSystem,secondsRemaining)
         }else if(timeState == TimerState.Paused)
         {
             //TODO: show notification
