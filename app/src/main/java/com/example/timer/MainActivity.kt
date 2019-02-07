@@ -9,7 +9,11 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.support.design.widget.CoordinatorLayout
+import android.support.design.widget.Snackbar
+import android.view.Gravity
 import android.view.Menu
+import android.widget.FrameLayout
 import android.widget.TimePicker
 import android.widget.Toast
 import com.example.timer.util.NotificationUtil
@@ -83,7 +87,7 @@ class MainActivity : AppCompatActivity()
 
             if(timeState == TimerState.Running)
             {
-                Toast.makeText(this,"Stop timer!", Toast.LENGTH_LONG).show()
+                showSnackBar()
                 return@setOnClickListener
             }
 
@@ -101,6 +105,13 @@ class MainActivity : AppCompatActivity()
         }
 
     }
+
+    private fun showSnackBar() {
+        val snackBar = Snackbar.make(context_view,R.string.stop_time,Snackbar.LENGTH_SHORT)
+        snackBar.view.setBackgroundColor(getColor(android.R.color.holo_red_dark))
+        snackBar.show()
+    }
+
 
     private fun startTimer() {
         timer = object : CountDownTimer(secondsRemaining*1000,1000)
@@ -232,11 +243,5 @@ class MainActivity : AppCompatActivity()
         PrefUtil.setPreviousTimerLenghSeconds(timerLeng,this)
         PrefUtil.setSecondsRemaining(secondsRemaining,this)
         PrefUtil.setTimerState(timeState,this)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val menuInflater = menuInflater
-        menuInflater.inflate(R.menu.menu_item,menu)
-        return true
     }
 }
