@@ -3,12 +3,15 @@ package com.example.timer
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.Menu
+import android.widget.TimePicker
+import android.widget.Toast
 import com.example.timer.util.NotificationUtil
 import com.example.timer.util.PrefUtil
 import kotlinx.android.synthetic.main.activity_main.*
@@ -67,9 +70,36 @@ class MainActivity : AppCompatActivity()
         }
 
         btn_reset.setOnClickListener {
-            timer.cancel()
+            if(::timer.isInitialized)
+                timer.cancel()
             onTimerFinish()
         }
+
+        initTvTimePicker()
+    }
+
+    private fun initTvTimePicker() {
+        tv_time.setOnClickListener{
+
+            if(timeState == TimerState.Running)
+            {
+                Toast.makeText(this,"Stop timer!", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            var minutes = PrefUtil.getTimerLength(this)
+            val hour = minutes/60
+            minutes -= hour*60
+
+            TimePickerDialog(this,
+                TimePickerDialog.OnTimeSetListener {
+                        _, hourOfDay, minute ->
+                    PrefUtil.setTimerLength(minute+hourOfDay*60,this@MainActivity)
+                    onTimerFinish()
+                },hour,minutes,true).show()
+
+        }
+
     }
 
     private fun startTimer() {
