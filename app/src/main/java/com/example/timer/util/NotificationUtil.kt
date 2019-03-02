@@ -1,6 +1,5 @@
 package com.example.timer.util
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,6 +8,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
 import com.example.timer.AppConstants
@@ -41,10 +42,15 @@ class NotificationUtil {
                 .setContentText("Start again?")
                 .setContentIntent(getPendingIntentWithStack(context, MainActivity::class.java))
                 .addAction(R.drawable.ic_play, "Start", pendingIntent)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
             val nManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nManager.createNotificationChannel(CHANNEL_ID_TIMER, CHANNEL_NAME_TIMER, true)
             nManager.notify(TIMER_ID, nBuilder.build())
+
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+            vibrator.vibrate(VibrationEffect.createOneShot(2000,VibrationEffect.DEFAULT_AMPLITUDE))
 
         }
 
@@ -103,6 +109,7 @@ class NotificationUtil {
             nManager.notify(TIMER_ID, nBuilder.build())
 
         }
+
 
         private fun getBasicNotificatioBuilder(context: Context, chanelId: String, playSound: Boolean):
                 NotificationCompat.Builder {

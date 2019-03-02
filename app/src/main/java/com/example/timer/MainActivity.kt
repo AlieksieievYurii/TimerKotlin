@@ -9,13 +9,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.Snackbar
-import android.view.Gravity
-import android.view.Menu
-import android.widget.FrameLayout
-import android.widget.TimePicker
-import android.widget.Toast
 import com.example.timer.util.NotificationUtil
 import com.example.timer.util.PrefUtil
 import kotlinx.android.synthetic.main.activity_main.*
